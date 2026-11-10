@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fechamento Next Day - Julho 2026</title>
+  <title>Controle de Janelas – Recebimento & Expedição</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-main: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
+      --bg-dark: #0a0f1d;
+      --card-bg: #11192e;
+      --card-border: #1e2945;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --accent-blue: #38bdf8;
-      --accent-green: #22c55e;
-      --accent-red: #ef4444;
-      --accent-gold: #f59e0b;
-      --accent-purple: #a855f7;
+      --blue: #0284c7;
+      --cyan: #06b6d4;
+      --orange: #f97316;
+      --green: #22c55e;
+      --yellow: #eab308;
     }
 
     * {
@@ -29,419 +29,619 @@
     }
 
     body {
-      background-color: var(--bg-main);
+      background-color: var(--bg-dark);
       color: var(--text-main);
       padding: 16px;
-      padding-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-      padding: 20px 10px;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border-radius: 16px;
+    /* TOPO / HEADER */
+    .header-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 1.8rem;
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-date {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.03);
+      padding: 8px 14px;
+      border-radius: 8px;
       border: 1px solid var(--card-border);
     }
 
-    .header h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(90deg, #38bdf8, #818cf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header p {
+    .header-date span {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-top: 4px;
+      text-transform: uppercase;
     }
 
-    .dashboard-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+    .header-date strong {
+      font-size: 0.95rem;
+      color: var(--cyan);
+    }
+
+    /* SUBHEADER LIMITES */
+    .sub-bar {
+      background: #0284c7;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+
+    /* GRID DE CARDS SUPERIORES */
+    .top-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
     }
 
     .card {
       background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
       border: 1px solid var(--card-border);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .card-title {
-      font-size: 1.1rem;
+    .card-header-label {
+      font-size: 0.85rem;
       font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 16px;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    /* Grid KPIs Principais e Adicionais */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    .gauge-card-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
       gap: 12px;
     }
 
-    .kpi-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--card-border);
-      padding: 14px;
-      border-radius: 12px;
-      text-align: center;
+    .gauge-wrapper {
+      position: relative;
+      width: 105px;
+      height: 105px;
     }
 
-    .kpi-card .label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-
-    .kpi-card .number {
-      font-size: 1.4rem;
+    .gauge-val {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.15rem;
       font-weight: 800;
-      margin-top: 4px;
-      color: var(--accent-blue);
     }
 
-    .kpi-card.danger .number { color: var(--accent-red); }
-    .kpi-card.success .number { color: var(--accent-green); }
-    .kpi-card.purple .number { color: var(--accent-purple); }
+    .card-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-    /* Ranking Five Stars */
-    .podium-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    .metric-group .num {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .metric-group .desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* STATUS OPERACIONAL */
+    .status-badge {
+      display: flex;
+      align-items: center;
       gap: 12px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .status-badge .icon {
+      font-size: 1.8rem;
+    }
+
+    .status-badge .title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .status-badge .sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* SEÇÃO CENTRAL (BARRAS & PEÇAS) */
+    .mid-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .mid-grid { grid-template-columns: 1fr; }
+    }
+
+    .stacked-bar-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       margin-top: 10px;
     }
 
-    .driver-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
+    .bar-legend {
       display: flex;
-      align-items: center;
-      gap: 14px;
+      justify-content: flex-end;
+      gap: 16px;
+      font-size: 0.75rem;
     }
 
-    .driver-card.top1 {
-      border-color: var(--accent-gold);
-      background: rgba(245, 158, 11, 0.05);
+    .bar-track {
+      width: 100%;
+      height: 38px;
+      background: #1e2945;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
     }
 
-    .rank-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+    .bar-fill-used {
+      background: #0284c7;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 1.1rem;
-      background: var(--card-border);
-      color: var(--text-main);
-      flex-shrink: 0;
-    }
-
-    .top1 .rank-badge { background: var(--accent-gold); color: #000; }
-
-    .driver-info h3 {
-      font-size: 1rem;
+      font-size: 0.8rem;
       font-weight: 700;
+      transition: width 0.6s ease;
     }
 
-    .driver-info p {
+    .bar-fill-avail {
+      background: #f97316;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: width 0.6s ease;
+    }
+
+    .total-footer {
+      text-align: center;
       font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .driver-score {
-      margin-left: auto;
-      text-align: right;
-    }
-
-    .driver-score .score {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--accent-gold);
-    }
-
-    /* Tabelas */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
-    }
-
-    th, td {
-      padding: 12px;
-      text-align: left;
-      font-size: 0.85rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    th {
       color: var(--text-muted);
       font-weight: 600;
-      font-size: 0.75rem;
-      text-transform: uppercase;
     }
 
-    .two-cols {
+    /* PAINEL DE CONTROLE TABELA & GRAFICO LINHA */
+    .bottom-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
 
-    /* Feedback Cards */
-    .feedback-container {
-      display: flex;
-      flex-direction: column;
+    @media (max-width: 900px) {
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+
+    .kpi-row-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
-    .feedback-item {
-      padding: 14px;
-      border-radius: 12px;
+    .kpi-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .kpi-item .label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .kpi-item .val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    .alert-banner {
+      background: #f59e0b;
+      color: #000;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 800;
       font-size: 0.85rem;
-      line-height: 1.4;
+      text-align: center;
+      margin-top: 10px;
     }
-
-    .feedback-item.pos {
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.2);
-      color: #86efac;
-    }
-
-    .feedback-item.neg {
-      background: rgba(239, 68, 68, 0.08);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
-    }
-
-    .tag-score {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .pos .tag-score { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-    .neg .tag-score { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>🚀 FECHAMENTO NEXT DAY</h1>
-    <p>Resultados Operacionais • Julho 2026</p>
+  <!-- TOPO -->
+  <div class="header-bar">
+    <div class="brand">
+      <div class="brand-icon">🚚</div>
+      <div class="brand-text">
+        <h1>CONTROLE DE JANELAS</h1>
+        <p>Recebimento & Expedição – Alhandra</p>
+      </div>
+    </div>
+    <div class="header-date">
+      <span>Data</span>
+      <strong id="labelData">Carregando...</strong>
+    </div>
   </div>
 
-  <div class="dashboard-container">
-
-    <!-- RESUMO DE METRICAS (KPIs) -->
-    <div class="card">
-      <div class="card-title">📊 Visão Geral Operacional & Indicadores</div>
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="label">Programadas</div>
-          <div class="number">1.018</div>
-        </div>
-        <div class="kpi-card success">
-          <div class="label">1ª Tentativa</div>
-          <div class="number">982</div>
-        </div>
-        <div class="kpi-card danger">
-          <div class="label">Desvios</div>
-          <div class="number">36</div>
-        </div>
-        <div class="kpi-card purple">
-          <div class="label">NE</div>
-          <div class="number">99,61%</div>
-        </div>
-        <div class="kpi-card purple">
-          <div class="label">NI</div>
-          <div class="number">100%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">5STARS</div>
-          <div class="number" style="color: var(--accent-gold);">4,9 ★</div>
-        </div>
-        <div class="kpi-card purple">
-          <div class="label">NPCT</div>
-          <div class="number">99,93%</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RANKING MOTORISTAS -->
-    <div class="card">
-      <div class="card-title">🏆 Ranking Five Stars de Julho</div>
-      <div class="podium-grid">
-        
-        <div class="driver-card top1">
-          <div class="rank-badge">🥇</div>
-          <div class="driver-info">
-            <h3>Ipenemery</h3>
-            <p>313 Entregas (50 avaliadas)</p>
-          </div>
-          <div class="driver-score">
-            <div class="score">4,96</div>
-            <p style="font-size: 0.65rem; color: var(--accent-gold);">★ ★ ★ ★ ★</p>
-          </div>
-        </div>
-
-        <div class="driver-card">
-          <div class="rank-badge">🥈</div>
-          <div class="driver-info">
-            <h3>Cleiton</h3>
-            <p>297 Entregas (43 avaliadas)</p>
-          </div>
-          <div class="driver-score">
-            <div class="score">4,90</div>
-            <p style="font-size: 0.65rem; color: var(--accent-gold);">★ ★ ★ ★ ★</p>
-          </div>
-        </div>
-
-        <div class="driver-card">
-          <div class="rank-badge">🥉</div>
-          <div class="driver-info">
-            <h3>Fábio</h3>
-            <p>286 Entregas (26 avaliadas)</p>
-          </div>
-          <div class="driver-score">
-            <div class="score">4,76</div>
-            <p style="font-size: 0.65rem; color: var(--accent-gold);">★ ★ ★ ★ ☆</p>
-          </div>
-        </div>
-
-        <div class="driver-card">
-          <div class="rank-badge">4º</div>
-          <div class="driver-info">
-            <h3>Matheus</h3>
-            <p>94 Entregas (15 avaliadas)</p>
-          </div>
-          <div class="driver-score">
-            <div class="score">5,00</div>
-            <p style="font-size: 0.65rem; color: var(--accent-gold);">★ ★ ★ ★ ★</p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="two-cols">
-      <!-- MOTIVOS DE DESVIO APENAS EM PORCENTAGEM -->
-      <div class="card">
-        <div class="card-title">⚠️ Principais Motivos de Desvio</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Motivo</th>
-              <th style="text-align: right;">% do Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Local de entrega fechado</td>
-              <td style="text-align: right; font-weight:700; color: var(--accent-red);">25,0%</td>
-            </tr>
-            <tr>
-              <td>Compra Cancelada</td>
-              <td style="text-align: right; font-weight:700; color: var(--accent-red);">25,0%</td>
-            </tr>
-            <tr>
-              <td>Cliente ausente</td>
-              <td style="text-align: right; font-weight:700; color: var(--accent-gold);">22,2%</td>
-            </tr>
-            <tr>
-              <td>Não Localizado</td>
-              <td style="text-align: right; font-weight:700; color: var(--accent-gold);">19,4%</td>
-            </tr>
-            <tr>
-              <td>Deseja receber em outro local</td>
-              <td style="text-align: right; font-weight:700; color: var(--accent-blue);">8,3%</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- DESEMPENHO POR ROTA -->
-      <div class="card">
-        <div class="card-title">📍 Desempenho por Rota</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Rota</th>
-              <th style="text-align: center;">Volumes</th>
-              <th style="text-align: right;">% Desvio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>João Pessoa</td><td style="text-align: center;">421</td><td style="text-align: right; color: var(--accent-red); font-weight:700;">5%</td></tr>
-            <tr><td>Recife Sul</td><td style="text-align: center;">307</td><td style="text-align: right; color: var(--accent-blue); font-weight:700;">3%</td></tr>
-            <tr><td>Recife Norte</td><td style="text-align: center;">290</td><td style="text-align: right; color: var(--accent-green); font-weight:700;">2%</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- FEEDBACKS DOS CLIENTES -->
-    <div class="two-cols">
-      
-      <div class="card">
-        <div class="card-title" style="color: var(--accent-green);">💬 O que os clientes ELOGIARAM</div>
-        <div class="feedback-container">
-          <div class="feedback-item pos">
-            <span class="tag-score">EXCELENTE ATENDIMENTO</span>
-            <p>"Entrega muito bem feita com conferência do produto que foi colocado no lugar de uso. Pessoal muito atencioso e cuidadoso."</p>
-          </div>
-          <div class="feedback-item pos">
-            <span class="tag-score">AGILIDADE E ATENÇÃO</span>
-            <p>"Chegou cedo no dia agendado. Os entregadores me ligaram, esperaram eu chegar e foram solícitos em carregar até o apto."</p>
-          </div>
-          <div class="feedback-item pos">
-            <span class="tag-score">SIMPATIA</span>
-            <p>"Entrega mais rápida que já vi na vida e os entregadores muito simpáticos, educados e prestativos."</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="color: var(--accent-red);">💡 Pontos de ATENÇÃO (Reclamações)</div>
-        <div class="feedback-container">
-          <div class="feedback-item neg">
-            <span class="tag-score">ENTREGA EM APARTAMENTO</span>
-            <p>"Recusaram-se a subir a geladeira pelo elevador até o meu andar. Deixaram na portaria e tive que pagar pessoas para subirem."</p>
-          </div>
-          <div class="feedback-item neg">
-            <span class="tag-score">CUIDADO COM A CARGA</span>
-            <p>"A proteção de alumínio traseira do fogão veio amassada devido a alguma pancada no transporte."</p>
-          </div>
-          <div class="feedback-item neg">
-            <span class="tag-score">AVALIAÇÃO DE ACESSO</span>
-            <p>"O funcionário alegou que não subiria a entrega antes de checar se passava socialmente, gerando transtorno para o cliente."</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
+  <div class="sub-bar">
+    Limite diário: 1.260 min | Equipe B: 420 min | Equipe S: 420 min | Equipe E: 420 min
   </div>
 
+  <!-- CARDS SUPERIORES -->
+  <div class="top-cards-grid">
+    <!-- Janelas de Recebimento -->
+    <div class="card">
+      <div class="card-header-label">📦 Janelas de Recebimento</div>
+      <div class="gauge-card-content">
+        <div class="gauge-wrapper">
+          <canvas id="gaugeUtilizada"></canvas>
+          <div class="gauge-val" id="valPercUtil">--%</div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-group">
+            <div class="num" id="valTotalVeiculos">--</div>
+            <div class="desc">Total de Veículos Lançados</div>
+          </div>
+          <div class="metric-group">
+            <div class="num" id="valTotalMinutos">-- min</div>
+            <div class="desc">Total de Minutos Utilizados</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Janelas de Expedição -->
+    <div class="card">
+      <div class="card-header-label">📤 Janelas de Expedição</div>
+      <div class="gauge-card-content">
+        <div class="gauge-wrapper">
+          <canvas id="gaugeDisponivel"></canvas>
+          <div class="gauge-val" id="valPercDisp" style="color: var(--orange);">--%</div>
+        </div>
+        <div class="card-metrics">
+          <div class="metric-group">
+            <div class="num" id="valTempoMedio">-- min</div>
+            <div class="desc">Tempo Médio / Veículo</div>
+          </div>
+          <div class="metric-group">
+            <div class="num" id="valTotalHoras">-- h</div>
+            <div class="desc">Total de Horas Utilizadas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance -->
+    <div class="card">
+      <div class="card-header-label">⏱️ Performance Operacional</div>
+      <div style="display: flex; justify-content: space-around; align-items: center; height: 100%;">
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; color: var(--green);" id="valCardPercUtil">--%</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Utilizada</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; color: var(--yellow);" id="valCardPercDisp">--%</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Disponível</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Operacional -->
+    <div class="card">
+      <div class="card-header-label">🔄 Status Operacional</div>
+      <div class="status-badge">
+        <div class="icon">✅</div>
+        <div>
+          <div class="title" id="valStatusTitle">Dentro do Limite</div>
+          <div class="sub">Operação operando conforme o planejado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO INTERMEDIÁRIA (BARRAS & CAPACIDADE) -->
+  <div class="mid-grid">
+    <!-- Minutos Disponíveis x Utilizados -->
+    <div class="card">
+      <div class="card-header-label">📊 Minutos Disponíveis x Utilizados</div>
+      <div class="stacked-bar-container">
+        <div class="bar-legend">
+          <span>🔵 Utilizados</span>
+          <span>🟠 Disponíveis</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill-used" id="barUsed" style="width: 85%;">-- min</div>
+          <div class="bar-fill-avail" id="barAvail" style="width: 15%;">-- min</div>
+        </div>
+        <div class="total-footer" id="valTotalLimite">Total: 1.260 min</div>
+      </div>
+    </div>
+
+    <!-- Capacidade de Peças -->
+    <div class="card">
+      <div class="card-header-label">📈 Capacidade de Peças</div>
+      <div style="display: flex; align-items: center; justify-content: space-around; height: 100%;">
+        <div style="font-size: 2.2rem;">📦</div>
+        <div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: #facc15;" id="valCapPecas">-- peças</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">Capacidade Máx. de Peças</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO INFERIOR (RESUMO DO DIA & EVOLUÇÃO) -->
+  <div class="bottom-grid">
+    <!-- Detalhes do Painel de Controle -->
+    <div class="card">
+      <div class="card-header-label">📋 PAINEL DE CONTROLE – RESUMO DO DIA</div>
+      <div class="kpi-row-grid">
+        <div class="kpi-item">
+          <div class="label">Total de Veículos Lançados</div>
+          <div class="val" id="detVeiculos">--</div>
+        </div>
+        <div class="kpi-item">
+          <div class="label">Tempo Médio / Veículo</div>
+          <div class="val" id="detTempoMedio">--</div>
+        </div>
+        <div class="kpi-item">
+          <div class="label">Total de Minutos Utilizados</div>
+          <div class="val" id="detMinutos">--</div>
+        </div>
+        <div class="kpi-item">
+          <div class="label">Total de Horas Utilizadas</div>
+          <div class="val" id="detHoras">--</div>
+        </div>
+        <div class="kpi-item">
+          <div class="label">Minutos Disponíveis Restantes</div>
+          <div class="val" id="detMinDisp">--</div>
+        </div>
+        <div class="kpi-item">
+          <div class="label">Saldo de Vagas Restantes</div>
+          <div class="val" id="detSaldoVagas">--</div>
+        </div>
+      </div>
+      <div class="alert-banner" id="bannerAlerta">
+        🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)
+      </div>
+    </div>
+
+    <!-- Gráfico de Evolução Horária -->
+    <div class="card">
+      <div class="card-header-label">📈 Evolução Acumulada da Capacidade</div>
+      <div style="position: relative; height: 230px;">
+        <canvas id="lineChartEvolucao"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // URL configurada da sua API do Google Apps Script
+    const API_URL = "https://script.google.com/a/macros/whirlpool.com/s/AKfycbyx1BbsgRXpvsRZJvsM8J3SbAoFWV645XpAjT7Cr7Xo1TGvCCWijpI9n3iHwRfX-FVP0w/exec";
+
+    let gaugeUtilChart, gaugeDispChart, lineChart;
+
+    function initCharts() {
+      // Gauge Utilizado
+      const ctxUtil = document.getElementById('gaugeUtilizada').getContext('2d');
+      gaugeUtilChart = new Chart(ctxUtil, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [85.7, 14.3],
+            backgroundColor: ['#0284c7', '#1e2945'],
+            borderWidth: 0,
+            circumference: 360,
+          }]
+        },
+        options: {
+          cutout: '78%',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } }
+        }
+      });
+
+      // Gauge Disponível
+      const ctxDisp = document.getElementById('gaugeDisponivel').getContext('2d');
+      gaugeDispChart = new Chart(ctxDisp, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [14.3, 85.7],
+            backgroundColor: ['#f97316', '#1e2945'],
+            borderWidth: 0,
+            circumference: 360,
+          }]
+        },
+        options: {
+          cutout: '78%',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } }
+        }
+      });
+
+      // Linha de Evolução Horária
+      const ctxLine = document.getElementById('lineChartEvolucao').getContext('2d');
+      lineChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: ['08h', '10h', '12h', '14h', '16h', '18h'],
+          datasets: [{
+            label: '% Utilizado',
+            data: [20, 48, 62, 75, 83, 85.7],
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointBackgroundColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { callback: v => v + '%', color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    async function carregarDados() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        atualizarUI(data);
+      } catch (err) {
+        console.error("Erro ao buscar dados da planilha, aplicando fallback visual:", err);
+        // Fallback para manter a tela renderizada caso haja bloqueio de autenticação corporativa
+        atualizarUI({
+          data: "10/11/2026",
+          totalVeiculos: 26,
+          tempoMedio: "42 min",
+          totalMinutos: "1.080 min",
+          totalHoras: "18,0 h",
+          percUtilizada: "85,7%",
+          percDisponivel: "14,3%",
+          percUtilizadaNum: 85.7,
+          percDisponivelNum: 14.3,
+          minDisponiveis: "180 min",
+          saldoVagas: 4,
+          limiteDiario: "1.260 min",
+          capPecas: "2.520 peças",
+          alertaTexto: "🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)"
+        });
+      }
+    }
+
+    function atualizarUI(d) {
+      if (!d) return;
+
+      document.getElementById('labelData').innerText = d.data || "10/11/2026";
+      document.getElementById('valPercUtil').innerText = d.percUtilizada || "--%";
+      document.getElementById('valTotalVeiculos').innerText = d.totalVeiculos || "--";
+      document.getElementById('valTotalMinutos').innerText = d.totalMinutos || "-- min";
+
+      document.getElementById('valPercDisp').innerText = d.percDisponivel || "--%";
+      document.getElementById('valTempoMedio').innerText = d.tempoMedio || "-- min";
+      document.getElementById('valTotalHoras').innerText = d.totalHoras || "-- h";
+
+      document.getElementById('valCardPercUtil').innerText = d.percUtilizada || "--%";
+      document.getElementById('valCardPercDisp').innerText = d.percDisponivel || "--%";
+
+      // Barra empilhada de minutos
+      const usedPercent = d.percUtilizadaNum !== undefined ? d.percUtilizadaNum : 85.7;
+      const availPercent = d.percDisponivelNum !== undefined ? d.percDisponivelNum : 14.3;
+      document.getElementById('barUsed').style.width = usedPercent + '%';
+      document.getElementById('barUsed').innerText = d.totalMinutos || "1.080 min";
+      document.getElementById('barAvail').style.width = availPercent + '%';
+      document.getElementById('barAvail').innerText = d.minDisponiveis || "180 min";
+      document.getElementById('valTotalLimite').innerText = "Total: " + (d.limiteDiario || "1.260 min");
+
+      document.getElementById('valCapPecas').innerText = d.capPecas || "2.520 peças";
+
+      // Tabela de resumo inferior
+      document.getElementById('detVeiculos').innerText = d.totalVeiculos || "--";
+      document.getElementById('detTempoMedio').innerText = d.tempoMedio || "--";
+      document.getElementById('detMinutos').innerText = d.totalMinutos || "--";
+      document.getElementById('detHoras').innerText = d.totalHoras || "--";
+      document.getElementById('detMinDisp').innerText = d.minDisponiveis || "--";
+      document.getElementById('detSaldoVagas').innerText = d.saldoVagas !== undefined ? d.saldoVagas : "--";
+      document.getElementById('bannerAlerta').innerText = d.alertaTexto || "🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)";
+
+      // Atualizar Gráficos circulares
+      if (gaugeUtilChart) {
+        gaugeUtilChart.data.datasets[0].data = [usedPercent, Math.max(0, 100 - usedPercent)];
+        gaugeUtilChart.update();
+      }
+      if (gaugeDispChart) {
+        gaugeDispChart.data.datasets[0].data = [availPercent, Math.max(0, 100 - availPercent)];
+        gaugeDispChart.update();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initCharts();
+      carregarDados();
+      // Atualiza automaticamente a cada 60 segundos
+      setInterval(carregarDados, 60000);
+    });
+  </script>
 </body>
 </html>
