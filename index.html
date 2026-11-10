@@ -37,7 +37,6 @@
       gap: 16px;
     }
 
-    /* TOPO / HEADER */
     .header-bar {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -72,28 +71,40 @@
       color: var(--text-muted);
     }
 
-    .header-date {
+    .header-right {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255,255,255,0.03);
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--card-border);
     }
 
-    .header-date span {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
+    .badge-sync {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .header-date {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.03);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      font-size: 0.85rem;
     }
 
     .header-date strong {
-      font-size: 0.95rem;
       color: var(--cyan);
     }
 
-    /* SUBHEADER LIMITES */
     .sub-bar {
       background: #0284c7;
       border-radius: 8px;
@@ -105,7 +116,6 @@
       box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
     }
 
-    /* GRID DE CARDS SUPERIORES */
     .top-cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -170,7 +180,6 @@
       color: var(--text-muted);
     }
 
-    /* STATUS OPERACIONAL */
     .status-badge {
       display: flex;
       align-items: center;
@@ -197,7 +206,6 @@
       margin-top: 2px;
     }
 
-    /* SEÇÃO CENTRAL (BARRAS & PEÇAS) */
     .mid-grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -260,7 +268,6 @@
       font-weight: 600;
     }
 
-    /* PAINEL DE CONTROLE TABELA & GRAFICO LINHA */
     .bottom-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -319,9 +326,15 @@
         <p>Recebimento & Expedição – Alhandra</p>
       </div>
     </div>
-    <div class="header-date">
-      <span>Data</span>
-      <strong id="labelData">Carregando...</strong>
+    <div class="header-right">
+      <div id="badgeSync" class="badge-sync">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" style="width: 8px; height: 8px; background: #34d399; border-radius: 50%;"></span>
+        <span>Conectando...</span>
+      </div>
+      <div class="header-date">
+        <span>Data:</span>
+        <strong id="labelData">--/--/----</strong>
+      </div>
     </div>
   </div>
 
@@ -403,7 +416,6 @@
 
   <!-- SEÇÃO INTERMEDIÁRIA (BARRAS & CAPACIDADE) -->
   <div class="mid-grid">
-    <!-- Minutos Disponíveis x Utilizados -->
     <div class="card">
       <div class="card-header-label">📊 Minutos Disponíveis x Utilizados</div>
       <div class="stacked-bar-container">
@@ -419,7 +431,6 @@
       </div>
     </div>
 
-    <!-- Capacidade de Peças -->
     <div class="card">
       <div class="card-header-label">📈 Capacidade de Peças</div>
       <div style="display: flex; align-items: center; justify-content: space-around; height: 100%;">
@@ -432,9 +443,8 @@
     </div>
   </div>
 
-  <!-- SEÇÃO INFERIOR (RESUMO DO DIA & EVOLUÇÃO) -->
+  <!-- SEÇÃO INFERIOR -->
   <div class="bottom-grid">
-    <!-- Detalhes do Painel de Controle -->
     <div class="card">
       <div class="card-header-label">📋 PAINEL DE CONTROLE – RESUMO DO DIA</div>
       <div class="kpi-row-grid">
@@ -468,7 +478,6 @@
       </div>
     </div>
 
-    <!-- Gráfico de Evolução Horária -->
     <div class="card">
       <div class="card-header-label">📈 Evolução Acumulada da Capacidade</div>
       <div style="position: relative; height: 230px;">
@@ -478,13 +487,12 @@
   </div>
 
   <script>
-    // URL configurada da sua API do Google Apps Script
-    const API_URL = "https://script.google.com/a/macros/whirlpool.com/s/AKfycbyx1BbsgRXpvsRZJvsM8J3SbAoFWV645XpAjT7Cr7Xo1TGvCCWijpI9n3iHwRfX-FVP0w/exec";
+    // URL da sua API do Google Apps Script
+    const GOOGLE_SCRIPT_JANELA_URL = "https://script.google.com/a/macros/whirlpool.com/s/AKfycbyx1BbsgRXpvsRZJvsM8J3SbAoFWV645XpAjT7Cr7Xo1TGvCCWijpI9n3iHwRfX-FVP0w/exec";
 
     let gaugeUtilChart, gaugeDispChart, lineChart;
 
     function initCharts() {
-      // Gauge Utilizado
       const ctxUtil = document.getElementById('gaugeUtilizada').getContext('2d');
       gaugeUtilChart = new Chart(ctxUtil, {
         type: 'doughnut',
@@ -504,7 +512,6 @@
         }
       });
 
-      // Gauge Disponível
       const ctxDisp = document.getElementById('gaugeDisponivel').getContext('2d');
       gaugeDispChart = new Chart(ctxDisp, {
         type: 'doughnut',
@@ -524,7 +531,6 @@
         }
       });
 
-      // Linha de Evolução Horária
       const ctxLine = document.getElementById('lineChartEvolucao').getContext('2d');
       lineChart = new Chart(ctxLine, {
         type: 'line',
@@ -556,38 +562,34 @@
               grid: { color: 'rgba(255,255,255,0.05)' }
             }
           },
-          plugins: {
-            legend: { display: false }
-          }
+          plugins: { legend: { display: false } }
         }
       });
     }
 
-    async function carregarDados() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+    // Callback Global que o Apps Script chama via JSONP
+    window.receberDadosJanela = function(data) {
+      if (data && (data.status === "success" || data.totalVeiculos !== undefined)) {
+        console.log("Dados recebidos da planilha via JSONP:", data);
         atualizarUI(data);
-      } catch (err) {
-        console.error("Erro ao buscar dados da planilha, aplicando fallback visual:", err);
-        // Fallback para manter a tela renderizada caso haja bloqueio de autenticação corporativa
-        atualizarUI({
-          data: "10/11/2026",
-          totalVeiculos: 26,
-          tempoMedio: "42 min",
-          totalMinutos: "1.080 min",
-          totalHoras: "18,0 h",
-          percUtilizada: "85,7%",
-          percDisponivel: "14,3%",
-          percUtilizadaNum: 85.7,
-          percDisponivelNum: 14.3,
-          minDisponiveis: "180 min",
-          saldoVagas: 4,
-          limiteDiario: "1.260 min",
-          capPecas: "2.520 peças",
-          alertaTexto: "🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)"
-        });
+        const badge = document.getElementById('badgeSync');
+        if (badge) {
+          badge.innerHTML = `<span style="width: 8px; height: 8px; background: #34d399; border-radius: 50%; display: inline-block;"></span> Atualizado às ${data.timestamp || new Date().toLocaleTimeString()}`;
+        }
       }
+    };
+
+    // Sincronização via JSONP (imune a CORS e bloqueios de domínio)
+    function sincronizarJanelaAlhandra() {
+      if (!GOOGLE_SCRIPT_JANELA_URL) return;
+      const antigo = document.getElementById('script-jsonp-janela');
+      if (antigo) antigo.remove();
+
+      const scriptTag = document.createElement('script');
+      scriptTag.id = 'script-jsonp-janela';
+      const divisor = GOOGLE_SCRIPT_JANELA_URL.includes('?') ? '&' : '?';
+      scriptTag.src = GOOGLE_SCRIPT_JANELA_URL + divisor + 'callback=receberDadosJanela&_t=' + Date.now();
+      document.body.appendChild(scriptTag);
     }
 
     function atualizarUI(d) {
@@ -605,7 +607,6 @@
       document.getElementById('valCardPercUtil').innerText = d.percUtilizada || "--%";
       document.getElementById('valCardPercDisp').innerText = d.percDisponivel || "--%";
 
-      // Barra empilhada de minutos
       const usedPercent = d.percUtilizadaNum !== undefined ? d.percUtilizadaNum : 85.7;
       const availPercent = d.percDisponivelNum !== undefined ? d.percDisponivelNum : 14.3;
       document.getElementById('barUsed').style.width = usedPercent + '%';
@@ -616,7 +617,6 @@
 
       document.getElementById('valCapPecas').innerText = d.capPecas || "2.520 peças";
 
-      // Tabela de resumo inferior
       document.getElementById('detVeiculos').innerText = d.totalVeiculos || "--";
       document.getElementById('detTempoMedio').innerText = d.tempoMedio || "--";
       document.getElementById('detMinutos').innerText = d.totalMinutos || "--";
@@ -625,7 +625,6 @@
       document.getElementById('detSaldoVagas').innerText = d.saldoVagas !== undefined ? d.saldoVagas : "--";
       document.getElementById('bannerAlerta').innerText = d.alertaTexto || "🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)";
 
-      // Atualizar Gráficos circulares
       if (gaugeUtilChart) {
         gaugeUtilChart.data.datasets[0].data = [usedPercent, Math.max(0, 100 - usedPercent)];
         gaugeUtilChart.update();
@@ -638,9 +637,9 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       initCharts();
-      carregarDados();
-      // Atualiza automaticamente a cada 60 segundos
-      setInterval(carregarDados, 60000);
+      sincronizarJanelaAlhandra();
+      // Atualiza automaticamente a cada 15 segundos (como nas suas outras telas)
+      setInterval(sincronizarJanelaAlhandra, 15000);
     });
   </script>
 </body>
