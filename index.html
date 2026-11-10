@@ -381,9 +381,9 @@
 
   <!-- CARDS SUPERIORES -->
   <div class="top-cards-grid">
-    <!-- Janelas de Recebimento -->
+    <!-- Capacidade Utilizada -->
     <div class="card">
-      <div class="card-header-label">📦 Janelas de Recebimento</div>
+      <div class="card-header-label">📦 Capacidade Utilizada</div>
       <div class="gauge-card-content">
         <div class="gauge-wrapper">
           <canvas id="gaugeUtilizada"></canvas>
@@ -402,9 +402,9 @@
       </div>
     </div>
 
-    <!-- Janelas de Expedição -->
+    <!-- Saldo Disponível -->
     <div class="card">
-      <div class="card-header-label">📤 Janelas de Expedição</div>
+      <div class="card-header-label">📤 Saldo Disponível</div>
       <div class="gauge-card-content">
         <div class="gauge-wrapper">
           <canvas id="gaugeDisponivel"></canvas>
@@ -474,7 +474,7 @@
         <div style="font-size: 2.2rem;">📦</div>
         <div>
           <div style="font-size: 1.5rem; font-weight: 800; color: #facc15;" id="valCapPecas">-- peças</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">Capacidade Máx. de Peças</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">Saldo: <strong id="valSaldoPecas" style="color: #fff;">--</strong></div>
         </div>
       </div>
     </div>
@@ -528,49 +528,36 @@
 
     let gaugeUtilChart, gaugeDispChart, lineChart;
 
-    // --- FUNÇÕES DE FORMATAÇÃO E HIGIENIZAÇÃO PRECISA ---
+    // Converte com precisão qualquer formato do Google Sheets em número real
+    function parseSafeFloat(val) {
+      if (val === null || val === undefined || val === '') return 0;
+      if (typeof val === 'number') return val;
+      let s = String(val).trim();
+      // Se tiver 'min', 'h', 'peças', limpa
+      s = s.replace(/min|h|peças|%/gi, '').trim();
+      // Se tiver notação brasileira com ponto em milhar: 1.080 ou 2.520
+      if (/^\d{1,3}\.\d{3}/.test(s) && !s.includes(',')) {
+        s = s.replace(/\./g, '');
+      } else {
+        s = s.replace(',', '.');
+      }
+      const num = parseFloat(s);
+      return isNaN(num) ? 0 : num;
+    }
+
     function formatarDataBR(dataBruta) {
       if (!dataBruta) return "--/--/----";
       const s = String(dataBruta).trim();
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
       const match = s.match(/(\d{4})-(\d{2})-(\d{2})/);
       if (match) return `${match[3]}/${match[2]}/${match[1]}`;
       const d = new Date(s);
       if (!isNaN(d.getTime())) {
         const dia = String(d.getDate()).padStart(2, '0');
         const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const ano = d.getFullYear();
-        return `${dia}/${mes}/${ano}`;
+        return `${dia}/${mes}/${d.getFullYear()}`;
       }
       return s;
-    }
-
-    function extrairNumero(val) {
-      if (val === null || val === undefined) return 0;
-      if (typeof val === 'number') return val;
-      const s = String(val).replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
-      const n = parseFloat(s);
-      return isNaN(n) ? 0 : n;
-    }
-
-    function formatarMinutos(val) {
-      const n = Math.round(extrairNumero(val));
-      return n.toLocaleString('pt-BR') + ' min';
-    }
-
-    function formatarHoras(val) {
-      const n = extrairNumero(val);
-      return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' h';
-    }
-
-    function formatarPecas(val) {
-      const n = Math.round(extrairNumero(val));
-      return n.toLocaleString('pt-BR') + ' peças';
-    }
-
-    function formatarPercentual(val) {
-      let n = extrairNumero(val);
-      if (n > 0 && n <= 1) n = n * 100;
-      return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
     }
 
     function initCharts() {
@@ -579,7 +566,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [90.5, 9.5],
+            data: [85.7, 14.3],
             backgroundColor: ['#0284c7', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -598,7 +585,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [9.5, 90.5],
+            data: [14.3, 85.7],
             backgroundColor: ['#f97316', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -619,7 +606,7 @@
           labels: ['08h', '10h', '12h', '14h', '16h', '18h'],
           datasets: [{
             label: '% Utilizado',
-            data: [20, 50, 65, 78, 86, 90.5],
+            data: [20, 48, 62, 75, 83, 85.7],
             borderColor: '#38bdf8',
             backgroundColor: 'rgba(56, 189, 248, 0.1)',
             fill: true,
@@ -648,7 +635,6 @@
       });
     }
 
-    // Callback JSONP invocado pelo Apps Script
     window.receberDadosJanela = function(data) {
       if (data && (data.status === "success" || data.totalVeiculos !== undefined)) {
         atualizarUI(data);
@@ -674,52 +660,66 @@
     function atualizarUI(d) {
       if (!d) return;
 
-      // 1. Data higienizada no topo
+      // Data formatada
       document.getElementById('labelData').innerText = formatarDataBR(d.data);
 
-      // 2. Extração numérica padronizada
-      let usedPct = extrairNumero(d.percUtilizadaNum || d.percUtilizada);
-      if (usedPct > 0 && usedPct <= 1) usedPct = usedPct * 100;
-      let availPct = extrairNumero(d.percDisponivelNum || d.percDisponivel);
-      if (availPct > 0 && availPct <= 1) availPct = availPct * 100;
-      if (availPct === 0 && usedPct > 0) availPct = Math.max(0, 100 - usedPct);
+      // Conversão limpa e precisa de valores
+      const totalVeiculos = Math.round(parseSafeFloat(d.totalVeiculos));
+      const totalMinutos = Math.round(parseSafeFloat(d.totalMinutos));
+      const tempoMedio = totalVeiculos > 0 ? Math.round(totalMinutos / totalVeiculos) : Math.round(parseSafeFloat(d.tempoMedio));
+      const totalHoras = (totalMinutos / 60);
+
+      const limiteDiario = Math.round(parseSafeFloat(d.limiteDiario)) || 1260;
+      const minDisponiveis = Math.max(0, limiteDiario - totalMinutos);
+      const horasDisponiveis = (minDisponiveis / 60);
+
+      let usedPct = (totalMinutos / limiteDiario) * 100;
+      let availPct = Math.max(0, 100 - usedPct);
 
       const strUsedPct = usedPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
       const strAvailPct = availPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
 
-      // 3. Preenchimento dos cards superiores
+      // 1. Cards Superiores
       document.getElementById('valPercUtil').innerText = strUsedPct;
-      document.getElementById('valTotalVeiculos').innerText = Math.round(extrairNumero(d.totalVeiculos));
-      document.getElementById('valTotalMinutos').innerText = formatarMinutos(d.totalMinutos);
+      document.getElementById('valTotalVeiculos').innerText = totalVeiculos;
+      document.getElementById('valTotalMinutos').innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
 
       document.getElementById('valPercDisp').innerText = strAvailPct;
-      document.getElementById('valTempoMedio').innerText = formatarMinutos(d.tempoMedio);
-      document.getElementById('valTotalHoras').innerText = formatarHoras(d.totalHoras);
+      document.getElementById('valTempoMedio').innerText = tempoMedio + ' min';
+      document.getElementById('valTotalHoras').innerText = totalHoras.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' h';
 
       document.getElementById('valCardPercUtil').innerText = strUsedPct;
       document.getElementById('valCardPercDisp').innerText = strAvailPct;
 
-      // 4. Barra empilhada de Minutos
+      // 2. Barra Empilhada
       const barU = document.getElementById('barUsed');
       const barA = document.getElementById('barAvail');
       barU.style.width = Math.min(Math.max(usedPct, 5), 95) + '%';
-      barU.innerText = formatarMinutos(d.totalMinutos);
+      barU.innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
 
       barA.style.width = Math.min(Math.max(availPct, 5), 95) + '%';
-      barA.innerText = formatarMinutos(d.minDisponiveis);
+      barA.innerText = minDisponiveis.toLocaleString('pt-BR') + ' min';
 
-      document.getElementById('valTotalLimite').innerText = "Total: " + formatarMinutos(d.limiteDiario || 1260);
-      document.getElementById('valCapPecas').innerText = formatarPecas(d.capPecas || 2520);
+      document.getElementById('valTotalLimite').innerText = "Total: " + limiteDiario.toLocaleString('pt-BR') + " min";
 
-      // 5. Tabela do Painel Resumo
-      document.getElementById('detVeiculos').innerText = Math.round(extrairNumero(d.totalVeiculos));
-      document.getElementById('detTempoMedio').innerText = formatarMinutos(d.tempoMedio);
-      document.getElementById('detMinutos').innerText = formatarMinutos(d.totalMinutos);
-      document.getElementById('detHoras').innerText = formatarHoras(d.totalHoras);
-      document.getElementById('detMinDisp').innerText = formatarMinutos(d.minDisponiveis);
-      document.getElementById('detSaldoVagas').innerText = Math.round(extrairNumero(d.saldoVagas));
+      // 3. Capacidade de Peças
+      const capPecas = Math.round(parseSafeFloat(d.capPecas)) || 2520;
+      const saldoPecas = Math.round(parseSafeFloat(d.saldoPecas)) || (minDisponiveis * 2);
+      document.getElementById('valCapPecas').innerText = capPecas.toLocaleString('pt-BR') + ' peças';
+      document.getElementById('valSaldoPecas').innerText = saldoPecas.toLocaleString('pt-BR') + ' peças restantes';
 
-      // 6. Alerta e Status Dinâmico por Faixa Operacional
+      // 4. Tabela Inferior (Resumo do Dia)
+      const capMaxVeiculos = Math.round(parseSafeFloat(d.capMax)) || 30;
+      const saldoVagas = Math.max(0, capMaxVeiculos - totalVeiculos);
+
+      document.getElementById('detVeiculos').innerText = totalVeiculos;
+      document.getElementById('detTempoMedio').innerText = tempoMedio + ' min';
+      document.getElementById('detMinutos').innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
+      document.getElementById('detHoras').innerText = totalHoras.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' h';
+      document.getElementById('detMinDisp').innerText = minDisponiveis.toLocaleString('pt-BR') + ' min';
+      document.getElementById('detSaldoVagas').innerText = saldoVagas;
+
+      // 5. Alerta e Status
       const statusRoot = document.getElementById('statusBadgeRoot');
       const statusIcon = document.getElementById('valStatusIcon');
       const statusTitle = document.getElementById('valStatusTitle');
@@ -752,7 +752,7 @@
         banner.innerText = `🟢 OPERAÇÃO NORMAL (${strUsedPct})`;
       }
 
-      // 7. Atualização dos gráficos
+      // 6. Atualização dos Gráficos
       if (gaugeUtilChart) {
         gaugeUtilChart.data.datasets[0].data = [usedPct, Math.max(0, 100 - usedPct)];
         gaugeUtilChart.update();
@@ -762,7 +762,7 @@
         gaugeDispChart.update();
       }
       if (lineChart && lineChart.data.datasets[0].data.length > 0) {
-        lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1] = usedPct;
+        lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1] = Number(usedPct.toFixed(1));
         lineChart.update();
       }
     }
