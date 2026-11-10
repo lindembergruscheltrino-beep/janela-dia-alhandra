@@ -131,6 +131,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      position: relative;
     }
 
     .card-header-label {
@@ -168,6 +169,11 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+
+    .metric-group {
+      cursor: help;
+      position: relative;
     }
 
     .metric-group .num {
@@ -289,6 +295,70 @@
       font-weight: 600;
     }
 
+    /* CARD DE PEÇAS APRIMORADO */
+    .pecas-card-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .pecas-main-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pecas-icon {
+      font-size: 2.2rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 12px;
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      shrink-0: 0;
+    }
+
+    .pecas-info .val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #facc15;
+      line-height: 1.1;
+    }
+
+    .pecas-info .sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .pecas-progress-wrap {
+      background: #1e2945;
+      border-radius: 6px;
+      height: 8px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .pecas-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #eab308);
+      border-radius: 6px;
+      transition: width 0.6s ease;
+    }
+
+    .pecas-footer-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
     .bottom-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -310,11 +380,27 @@
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 12px;
+      cursor: help;
+      position: relative;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi-item:hover {
+      background: rgba(56, 189, 248, 0.05);
+      border-color: rgba(56, 189, 248, 0.4);
     }
 
     .kpi-item .label {
       font-size: 0.72rem;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kpi-item .label span.info-icon {
+      font-size: 0.75rem;
+      color: #64748b;
     }
 
     .kpi-item .val {
@@ -324,31 +410,76 @@
       margin-top: 4px;
     }
 
+    /* BARRA DE ALERTA MODERNA */
     .alert-banner {
-      background: #f59e0b;
-      color: #000;
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 10px;
+      padding: 12px 16px;
       font-weight: 800;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       text-align: center;
       margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.3px;
       transition: all 0.3s ease;
     }
 
     .alert-banner.ok {
-      background: #22c55e;
-      color: #000;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.08) 100%);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: #86efac;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.15);
     }
 
     .alert-banner.warn {
-      background: #f59e0b;
-      color: #000;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(245, 158, 11, 0.08) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      color: #fde047;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.18);
     }
 
     .alert-banner.crit {
-      background: #ef4444;
-      color: #fff;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.1) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.7);
+      color: #fca5a5;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+    }
+
+    /* TOOLTIP NATIVO DIDÁTICO */
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      border: 1px solid #38bdf8;
+      color: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: pre-line;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.7);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 100;
+      width: max-content;
+      max-width: 250px;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    [data-tooltip]:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
     }
   </style>
 </head>
@@ -365,7 +496,7 @@
     </div>
     <div class="header-right">
       <div id="badgeSync" class="badge-sync">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" style="width: 8px; height: 8px; background: #34d399; border-radius: 50%;"></span>
+        <span style="width: 8px; height: 8px; background: #34d399; border-radius: 50%; display: inline-block;"></span>
         <span>Conectando...</span>
       </div>
       <div class="header-date">
@@ -375,26 +506,26 @@
     </div>
   </div>
 
-  <div class="sub-bar">
+  <div class="sub-bar" data-tooltip="Limite diário: 3 Equipes x 420 min = 1.260 min (21 horas operacionais)">
     Limite diário: 1.260 min | Equipe B: 420 min | Equipe S: 420 min | Equipe E: 420 min
   </div>
 
   <!-- CARDS SUPERIORES -->
   <div class="top-cards-grid">
     <!-- Capacidade Utilizada -->
-    <div class="card">
+    <div class="card" data-tooltip="Tempo total das janelas lançadas até o momento">
       <div class="card-header-label">📦 Capacidade Utilizada</div>
       <div class="gauge-card-content">
-        <div class="gauge-wrapper">
+        <div class="gauge-wrapper" data-tooltip="% Utilizado = (Total Minutos / 1.260 min) x 100">
           <canvas id="gaugeUtilizada"></canvas>
           <div class="gauge-val" id="valPercUtil">--%</div>
         </div>
         <div class="card-metrics">
-          <div class="metric-group">
+          <div class="metric-group" data-tooltip="Contagem de veículos/janelas preenchidos na tabela">
             <div class="num" id="valTotalVeiculos">--</div>
             <div class="desc">Total de Veículos Lançados</div>
           </div>
-          <div class="metric-group">
+          <div class="metric-group" data-tooltip="Soma dos tempos (minutos) de todos os veículos">
             <div class="num" id="valTotalMinutos">-- min</div>
             <div class="desc">Total de Minutos Utilizados</div>
           </div>
@@ -403,19 +534,19 @@
     </div>
 
     <!-- Saldo Disponível -->
-    <div class="card">
+    <div class="card" data-tooltip="Capacidade restante para novas operações hoje">
       <div class="card-header-label">📤 Saldo Disponível</div>
       <div class="gauge-card-content">
-        <div class="gauge-wrapper">
+        <div class="gauge-wrapper" data-tooltip="% Disponível = 100% - % Utilizado">
           <canvas id="gaugeDisponivel"></canvas>
           <div class="gauge-val" id="valPercDisp" style="color: var(--orange);">--%</div>
         </div>
         <div class="card-metrics">
-          <div class="metric-group">
+          <div class="metric-group" data-tooltip="Tempo Médio = Minutos Utilizados ÷ Total de Veículos">
             <div class="num" id="valTempoMedio">-- min</div>
             <div class="desc">Tempo Médio / Veículo</div>
           </div>
-          <div class="metric-group">
+          <div class="metric-group" data-tooltip="Total de Horas = Total de Minutos ÷ 60">
             <div class="num" id="valTotalHoras">-- h</div>
             <div class="desc">Total de Horas Utilizadas</div>
           </div>
@@ -427,11 +558,11 @@
     <div class="card">
       <div class="card-header-label">⏱️ Performance Operacional</div>
       <div style="display: flex; justify-content: space-around; align-items: center; height: 100%;">
-        <div style="text-align: center;">
+        <div style="text-align: center; cursor: help;" data-tooltip="Cálculo: (Minutos Utilizados ÷ 1.260 min) x 100">
           <div style="font-size: 2rem; font-weight: 800; color: var(--green);" id="valCardPercUtil">--%</div>
           <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Utilizada</div>
         </div>
-        <div style="text-align: center;">
+        <div style="text-align: center; cursor: help;" data-tooltip="Cálculo: (Minutos Restantes ÷ 1.260 min) x 100">
           <div style="font-size: 2rem; font-weight: 800; color: var(--yellow);" id="valCardPercDisp">--%</div>
           <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Disponível</div>
         </div>
@@ -441,7 +572,7 @@
     <!-- Status Operacional -->
     <div class="card">
       <div class="card-header-label">🔄 Status Operacional</div>
-      <div id="statusBadgeRoot" class="status-badge ok">
+      <div id="statusBadgeRoot" class="status-badge ok" data-tooltip="Normal: <75% | Atenção: 75%-90% | Crítico: ≥90%">
         <div class="icon" id="valStatusIcon">✅</div>
         <div>
           <div class="title" id="valStatusTitle">Dentro do Limite</div>
@@ -453,7 +584,7 @@
 
   <!-- SEÇÃO INTERMEDIÁRIA (BARRAS & CAPACIDADE) -->
   <div class="mid-grid">
-    <div class="card">
+    <div class="card" data-tooltip="Distribuição visual do limite operacional diário de 1.260 min">
       <div class="card-header-label">📊 Minutos Disponíveis x Utilizados</div>
       <div class="stacked-bar-container">
         <div class="bar-legend">
@@ -468,13 +599,23 @@
       </div>
     </div>
 
-    <div class="card">
+    <!-- CARD 1: CAPACIDADE DE PEÇAS APRIMORADO -->
+    <div class="card" data-tooltip="Capacidade Projetada: 2 peças por minuto (1.260 min x 2 = 2.520 peças)">
       <div class="card-header-label">📈 Capacidade de Peças</div>
-      <div style="display: flex; align-items: center; justify-content: space-around; height: 100%;">
-        <div style="font-size: 2.2rem;">📦</div>
-        <div>
-          <div style="font-size: 1.5rem; font-weight: 800; color: #facc15;" id="valCapPecas">-- peças</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">Saldo: <strong id="valSaldoPecas" style="color: #fff;">--</strong></div>
+      <div class="pecas-card-body">
+        <div class="pecas-main-row">
+          <div class="pecas-icon">📦</div>
+          <div class="pecas-info">
+            <div class="val" id="valCapPecas">2.520 peças</div>
+            <div class="sub">Capacidade Máxima Projetada</div>
+          </div>
+        </div>
+        <div class="pecas-progress-wrap">
+          <div class="pecas-progress-bar" id="pecasBar" style="width: 85%;"></div>
+        </div>
+        <div class="pecas-footer-stats">
+          <span>Saldo restante: <strong id="valSaldoPecas" style="color: #facc15;">-- peças</strong></span>
+          <span id="valPecasPercentTxt">85,7% ocupado</span>
         </div>
       </div>
     </div>
@@ -485,37 +626,41 @@
     <div class="card">
       <div class="card-header-label">📋 PAINEL DE CONTROLE – RESUMO DO DIA</div>
       <div class="kpi-row-grid">
-        <div class="kpi-item">
-          <div class="label">Total de Veículos Lançados</div>
+        <div class="kpi-item" data-tooltip="Cálculo: Contagem de veículos lançados nas janelas">
+          <div class="label">Total de Veículos Lançados <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detVeiculos">--</div>
         </div>
-        <div class="kpi-item">
-          <div class="label">Tempo Médio / Veículo</div>
+        <div class="kpi-item" data-tooltip="Cálculo: Minutos Utilizados ÷ Total de Veículos">
+          <div class="label">Tempo Médio / Veículo <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detTempoMedio">--</div>
         </div>
-        <div class="kpi-item">
-          <div class="label">Total de Minutos Utilizados</div>
+        <div class="kpi-item" data-tooltip="Cálculo: Soma da duração de todas as janelas do dia">
+          <div class="label">Total de Minutos Utilizados <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detMinutos">--</div>
         </div>
-        <div class="kpi-item">
-          <div class="label">Total de Horas Utilizadas</div>
+        <div class="kpi-item" data-tooltip="Cálculo: Total de Minutos ÷ 60 minutos">
+          <div class="label">Total de Horas Utilizadas <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detHoras">--</div>
         </div>
-        <div class="kpi-item">
-          <div class="label">Minutos Disponíveis Restantes</div>
+        <div class="kpi-item" data-tooltip="Cálculo: 1.260 min (Limite) - Minutos Utilizados">
+          <div class="label">Minutos Disponíveis Restantes <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detMinDisp">--</div>
         </div>
-        <div class="kpi-item">
-          <div class="label">Saldo de Vagas Restantes</div>
+        <div class="kpi-item" data-tooltip="Cálculo: 30 vagas (Meta) - Veículos Lançados">
+          <div class="label">Saldo de Vagas Restantes <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detSaldoVagas">--</div>
         </div>
       </div>
-      <div class="alert-banner" id="bannerAlerta">
-        Carregando status...
+      
+      <!-- BARRA DE ALERTA MODERNA -->
+      <div class="alert-banner warn" id="bannerAlerta">
+        <span id="bannerIcon">🟡</span>
+        <span id="bannerTexto">ATENÇÃO: CAPACIDADE PRÓXIMA (87,3%)</span>
       </div>
     </div>
 
-    <div class="card">
+    <!-- CARD 2: GRÁFICO SEM LINHAS DE GRADE -->
+    <div class="card" data-tooltip="Acompanhamento horário acumulado da utilização do CD">
       <div class="card-header-label">📈 Evolução Acumulada da Capacidade</div>
       <div style="position: relative; height: 230px;">
         <canvas id="lineChartEvolucao"></canvas>
@@ -528,18 +673,17 @@
 
     let gaugeUtilChart, gaugeDispChart, lineChart;
 
-    // Converte com precisão qualquer formato do Google Sheets em número real
+    // Parser Numérico Robusto (corrige notação brasileira e pontos decimais sem truncar)
     function parseSafeFloat(val) {
       if (val === null || val === undefined || val === '') return 0;
       if (typeof val === 'number') return val;
-      let s = String(val).trim();
-      // Se tiver 'min', 'h', 'peças', limpa
-      s = s.replace(/min|h|peças|%/gi, '').trim();
-      // Se tiver notação brasileira com ponto em milhar: 1.080 ou 2.520
-      if (/^\d{1,3}\.\d{3}/.test(s) && !s.includes(',')) {
+      let s = String(val).trim().replace(/min|h|peças|%/gi, '').trim();
+
+      // Se for formato brasileiro com ponto de milhar: ex 1.080 ou 2.520
+      if (/^\d{1,3}\.\d{3}$/.test(s)) {
         s = s.replace(/\./g, '');
-      } else {
-        s = s.replace(',', '.');
+      } else if (s.includes(',')) {
+        s = s.replace(/\./g, '').replace(',', '.');
       }
       const num = parseFloat(s);
       return isNaN(num) ? 0 : num;
@@ -566,7 +710,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [85.7, 14.3],
+            data: [87.3, 12.7],
             backgroundColor: ['#0284c7', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -585,7 +729,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [14.3, 85.7],
+            data: [12.7, 87.3],
             backgroundColor: ['#f97316', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -599,6 +743,7 @@
         }
       });
 
+      // GRÁFICO SEM LINHAS DE GRADE
       const ctxLine = document.getElementById('lineChartEvolucao').getContext('2d');
       lineChart = new Chart(ctxLine, {
         type: 'line',
@@ -606,9 +751,9 @@
           labels: ['08h', '10h', '12h', '14h', '16h', '18h'],
           datasets: [{
             label: '% Utilizado',
-            data: [20, 48, 62, 75, 83, 85.7],
+            data: [20, 48, 62, 75, 83, 87.3],
             borderColor: '#38bdf8',
-            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            backgroundColor: 'rgba(56, 189, 248, 0.12)',
             fill: true,
             tension: 0.35,
             pointRadius: 4,
@@ -623,11 +768,11 @@
               beginAtZero: true,
               max: 100,
               ticks: { callback: v => v + '%', color: '#94a3b8' },
-              grid: { color: 'rgba(255,255,255,0.05)' }
+              grid: { display: false, drawBorder: false } // Sem grade
             },
             x: {
               ticks: { color: '#94a3b8' },
-              grid: { color: 'rgba(255,255,255,0.05)' }
+              grid: { display: false, drawBorder: false } // Sem grade
             }
           },
           plugins: { legend: { display: false } }
@@ -660,10 +805,8 @@
     function atualizarUI(d) {
       if (!d) return;
 
-      // Data formatada
       document.getElementById('labelData').innerText = formatarDataBR(d.data);
 
-      // Conversão limpa e precisa de valores
       const totalVeiculos = Math.round(parseSafeFloat(d.totalVeiculos));
       const totalMinutos = Math.round(parseSafeFloat(d.totalMinutos));
       const tempoMedio = totalVeiculos > 0 ? Math.round(totalMinutos / totalVeiculos) : Math.round(parseSafeFloat(d.tempoMedio));
@@ -691,7 +834,7 @@
       document.getElementById('valCardPercUtil').innerText = strUsedPct;
       document.getElementById('valCardPercDisp').innerText = strAvailPct;
 
-      // 2. Barra Empilhada
+      // 2. Barra Empilhada de Minutos
       const barU = document.getElementById('barUsed');
       const barA = document.getElementById('barAvail');
       barU.style.width = Math.min(Math.max(usedPct, 5), 95) + '%';
@@ -702,13 +845,15 @@
 
       document.getElementById('valTotalLimite').innerText = "Total: " + limiteDiario.toLocaleString('pt-BR') + " min";
 
-      // 3. Capacidade de Peças
+      // 3. Capacidade de Peças Corrigida (Elimina os trilhões)
       const capPecas = Math.round(parseSafeFloat(d.capPecas)) || 2520;
-      const saldoPecas = Math.round(parseSafeFloat(d.saldoPecas)) || (minDisponiveis * 2);
+      const saldoPecas = Math.max(0, Math.round(minDisponiveis * 2)); // 2 peças por minuto restante
       document.getElementById('valCapPecas').innerText = capPecas.toLocaleString('pt-BR') + ' peças';
-      document.getElementById('valSaldoPecas').innerText = saldoPecas.toLocaleString('pt-BR') + ' peças restantes';
+      document.getElementById('valSaldoPecas').innerText = saldoPecas.toLocaleString('pt-BR') + ' peças';
+      document.getElementById('valPecasPercentTxt').innerText = strUsedPct + ' ocupado';
+      document.getElementById('pecasBar').style.width = Math.min(usedPct, 100) + '%';
 
-      // 4. Tabela Inferior (Resumo do Dia)
+      // 4. Tabela Resumo do Dia
       const capMaxVeiculos = Math.round(parseSafeFloat(d.capMax)) || 30;
       const saldoVagas = Math.max(0, capMaxVeiculos - totalVeiculos);
 
@@ -719,12 +864,14 @@
       document.getElementById('detMinDisp').innerText = minDisponiveis.toLocaleString('pt-BR') + ' min';
       document.getElementById('detSaldoVagas').innerText = saldoVagas;
 
-      // 5. Alerta e Status
+      // 5. Alerta Modernizado e Status Dinâmico
       const statusRoot = document.getElementById('statusBadgeRoot');
       const statusIcon = document.getElementById('valStatusIcon');
       const statusTitle = document.getElementById('valStatusTitle');
       const statusSub = document.getElementById('valStatusSub');
       const banner = document.getElementById('bannerAlerta');
+      const bannerIcon = document.getElementById('bannerIcon');
+      const bannerTexto = document.getElementById('bannerTexto');
 
       if (usedPct >= 90) {
         statusRoot.className = "status-badge crit";
@@ -733,7 +880,8 @@
         statusSub.innerText = "Acima de 90% da janela ocupada.";
 
         banner.className = "alert-banner crit";
-        banner.innerText = `🔴 ATENÇÃO: CAPACIDADE CRÍTICA (${strUsedPct})`;
+        bannerIcon.innerText = "🚨";
+        bannerTexto.innerText = `ATENÇÃO: CAPACIDADE CRÍTICA (${strUsedPct})`;
       } else if (usedPct >= 75) {
         statusRoot.className = "status-badge warn";
         statusIcon.innerText = "⚠️";
@@ -741,7 +889,8 @@
         statusSub.innerText = "Monitorar saldo de janelas disponíveis.";
 
         banner.className = "alert-banner warn";
-        banner.innerText = `🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (${strUsedPct})`;
+        bannerIcon.innerText = "🟡";
+        bannerTexto.innerText = `ATENÇÃO: CAPACIDADE PRÓXIMA (${strUsedPct})`;
       } else {
         statusRoot.className = "status-badge ok";
         statusIcon.innerText = "✅";
@@ -749,7 +898,8 @@
         statusSub.innerText = "Operação operando conforme o planejado.";
 
         banner.className = "alert-banner ok";
-        banner.innerText = `🟢 OPERAÇÃO NORMAL (${strUsedPct})`;
+        bannerIcon.innerText = "🟢";
+        bannerTexto.innerText = `OPERAÇÃO NORMAL (${strUsedPct})`;
       }
 
       // 6. Atualização dos Gráficos
