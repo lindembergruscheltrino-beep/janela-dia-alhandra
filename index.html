@@ -19,6 +19,7 @@
       --orange: #f97316;
       --green: #22c55e;
       --yellow: #eab308;
+      --red: #ef4444;
     }
 
     * {
@@ -184,11 +185,28 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.25);
       border-radius: 10px;
       padding: 14px;
+      transition: all 0.3s ease;
     }
+
+    .status-badge.ok {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .status-badge.ok .title { color: var(--green); }
+
+    .status-badge.warn {
+      background: rgba(234, 179, 8, 0.08);
+      border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+    .status-badge.warn .title { color: var(--yellow); }
+
+    .status-badge.crit {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .status-badge.crit .title { color: var(--red); }
 
     .status-badge .icon {
       font-size: 1.8rem;
@@ -197,7 +215,6 @@
     .status-badge .title {
       font-size: 1rem;
       font-weight: 800;
-      color: var(--green);
     }
 
     .status-badge .sub {
@@ -248,6 +265,8 @@
       font-size: 0.8rem;
       font-weight: 700;
       transition: width 0.6s ease;
+      white-space: nowrap;
+      padding: 0 8px;
     }
 
     .bar-fill-avail {
@@ -259,6 +278,8 @@
       font-size: 0.8rem;
       font-weight: 700;
       transition: width 0.6s ease;
+      white-space: nowrap;
+      padding: 0 8px;
     }
 
     .total-footer {
@@ -312,6 +333,22 @@
       font-size: 0.85rem;
       text-align: center;
       margin-top: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .alert-banner.ok {
+      background: #22c55e;
+      color: #000;
+    }
+
+    .alert-banner.warn {
+      background: #f59e0b;
+      color: #000;
+    }
+
+    .alert-banner.crit {
+      background: #ef4444;
+      color: #fff;
     }
   </style>
 </head>
@@ -404,11 +441,11 @@
     <!-- Status Operacional -->
     <div class="card">
       <div class="card-header-label">🔄 Status Operacional</div>
-      <div class="status-badge">
-        <div class="icon">✅</div>
+      <div id="statusBadgeRoot" class="status-badge ok">
+        <div class="icon" id="valStatusIcon">✅</div>
         <div>
           <div class="title" id="valStatusTitle">Dentro do Limite</div>
-          <div class="sub">Operação operando conforme o planejado.</div>
+          <div class="sub" id="valStatusSub">Operação operando conforme o planejado.</div>
         </div>
       </div>
     </div>
@@ -474,7 +511,7 @@
         </div>
       </div>
       <div class="alert-banner" id="bannerAlerta">
-        🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)
+        Carregando status...
       </div>
     </div>
 
@@ -487,10 +524,54 @@
   </div>
 
   <script>
-    // URL da sua API do Google Apps Script
     const GOOGLE_SCRIPT_JANELA_URL = "https://script.google.com/a/macros/whirlpool.com/s/AKfycbyx1BbsgRXpvsRZJvsM8J3SbAoFWV645XpAjT7Cr7Xo1TGvCCWijpI9n3iHwRfX-FVP0w/exec";
 
     let gaugeUtilChart, gaugeDispChart, lineChart;
+
+    // --- FUNÇÕES DE FORMATAÇÃO E HIGIENIZAÇÃO PRECISA ---
+    function formatarDataBR(dataBruta) {
+      if (!dataBruta) return "--/--/----";
+      const s = String(dataBruta).trim();
+      const match = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+      }
+      return s;
+    }
+
+    function extrairNumero(val) {
+      if (val === null || val === undefined) return 0;
+      if (typeof val === 'number') return val;
+      const s = String(val).replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatarMinutos(val) {
+      const n = Math.round(extrairNumero(val));
+      return n.toLocaleString('pt-BR') + ' min';
+    }
+
+    function formatarHoras(val) {
+      const n = extrairNumero(val);
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' h';
+    }
+
+    function formatarPecas(val) {
+      const n = Math.round(extrairNumero(val));
+      return n.toLocaleString('pt-BR') + ' peças';
+    }
+
+    function formatarPercentual(val) {
+      let n = extrairNumero(val);
+      if (n > 0 && n <= 1) n = n * 100;
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+    }
 
     function initCharts() {
       const ctxUtil = document.getElementById('gaugeUtilizada').getContext('2d');
@@ -498,7 +579,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [85.7, 14.3],
+            data: [90.5, 9.5],
             backgroundColor: ['#0284c7', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -517,7 +598,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [14.3, 85.7],
+            data: [9.5, 90.5],
             backgroundColor: ['#f97316', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -538,7 +619,7 @@
           labels: ['08h', '10h', '12h', '14h', '16h', '18h'],
           datasets: [{
             label: '% Utilizado',
-            data: [20, 48, 62, 75, 83, 85.7],
+            data: [20, 50, 65, 78, 86, 90.5],
             borderColor: '#38bdf8',
             backgroundColor: 'rgba(56, 189, 248, 0.1)',
             fill: true,
@@ -567,10 +648,9 @@
       });
     }
 
-    // Callback Global que o Apps Script chama via JSONP
+    // Callback JSONP invocado pelo Apps Script
     window.receberDadosJanela = function(data) {
       if (data && (data.status === "success" || data.totalVeiculos !== undefined)) {
-        console.log("Dados recebidos da planilha via JSONP:", data);
         atualizarUI(data);
         const badge = document.getElementById('badgeSync');
         if (badge) {
@@ -579,7 +659,6 @@
       }
     };
 
-    // Sincronização via JSONP (imune a CORS e bloqueios de domínio)
     function sincronizarJanelaAlhandra() {
       if (!GOOGLE_SCRIPT_JANELA_URL) return;
       const antigo = document.getElementById('script-jsonp-janela');
@@ -595,50 +674,102 @@
     function atualizarUI(d) {
       if (!d) return;
 
-      document.getElementById('labelData').innerText = d.data || "10/11/2026";
-      document.getElementById('valPercUtil').innerText = d.percUtilizada || "--%";
-      document.getElementById('valTotalVeiculos').innerText = d.totalVeiculos || "--";
-      document.getElementById('valTotalMinutos').innerText = d.totalMinutos || "-- min";
+      // 1. Data higienizada no topo
+      document.getElementById('labelData').innerText = formatarDataBR(d.data);
 
-      document.getElementById('valPercDisp').innerText = d.percDisponivel || "--%";
-      document.getElementById('valTempoMedio').innerText = d.tempoMedio || "-- min";
-      document.getElementById('valTotalHoras').innerText = d.totalHoras || "-- h";
+      // 2. Extração numérica padronizada
+      let usedPct = extrairNumero(d.percUtilizadaNum || d.percUtilizada);
+      if (usedPct > 0 && usedPct <= 1) usedPct = usedPct * 100;
+      let availPct = extrairNumero(d.percDisponivelNum || d.percDisponivel);
+      if (availPct > 0 && availPct <= 1) availPct = availPct * 100;
+      if (availPct === 0 && usedPct > 0) availPct = Math.max(0, 100 - usedPct);
 
-      document.getElementById('valCardPercUtil').innerText = d.percUtilizada || "--%";
-      document.getElementById('valCardPercDisp').innerText = d.percDisponivel || "--%";
+      const strUsedPct = usedPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+      const strAvailPct = availPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
 
-      const usedPercent = d.percUtilizadaNum !== undefined ? d.percUtilizadaNum : 85.7;
-      const availPercent = d.percDisponivelNum !== undefined ? d.percDisponivelNum : 14.3;
-      document.getElementById('barUsed').style.width = usedPercent + '%';
-      document.getElementById('barUsed').innerText = d.totalMinutos || "1.080 min";
-      document.getElementById('barAvail').style.width = availPercent + '%';
-      document.getElementById('barAvail').innerText = d.minDisponiveis || "180 min";
-      document.getElementById('valTotalLimite').innerText = "Total: " + (d.limiteDiario || "1.260 min");
+      // 3. Preenchimento dos cards superiores
+      document.getElementById('valPercUtil').innerText = strUsedPct;
+      document.getElementById('valTotalVeiculos').innerText = Math.round(extrairNumero(d.totalVeiculos));
+      document.getElementById('valTotalMinutos').innerText = formatarMinutos(d.totalMinutos);
 
-      document.getElementById('valCapPecas').innerText = d.capPecas || "2.520 peças";
+      document.getElementById('valPercDisp').innerText = strAvailPct;
+      document.getElementById('valTempoMedio').innerText = formatarMinutos(d.tempoMedio);
+      document.getElementById('valTotalHoras').innerText = formatarHoras(d.totalHoras);
 
-      document.getElementById('detVeiculos').innerText = d.totalVeiculos || "--";
-      document.getElementById('detTempoMedio').innerText = d.tempoMedio || "--";
-      document.getElementById('detMinutos').innerText = d.totalMinutos || "--";
-      document.getElementById('detHoras').innerText = d.totalHoras || "--";
-      document.getElementById('detMinDisp').innerText = d.minDisponiveis || "--";
-      document.getElementById('detSaldoVagas').innerText = d.saldoVagas !== undefined ? d.saldoVagas : "--";
-      document.getElementById('bannerAlerta').innerText = d.alertaTexto || "🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (86%)";
+      document.getElementById('valCardPercUtil').innerText = strUsedPct;
+      document.getElementById('valCardPercDisp').innerText = strAvailPct;
 
+      // 4. Barra empilhada de Minutos
+      const barU = document.getElementById('barUsed');
+      const barA = document.getElementById('barAvail');
+      barU.style.width = Math.min(Math.max(usedPct, 5), 95) + '%';
+      barU.innerText = formatarMinutos(d.totalMinutos);
+
+      barA.style.width = Math.min(Math.max(availPct, 5), 95) + '%';
+      barA.innerText = formatarMinutos(d.minDisponiveis);
+
+      document.getElementById('valTotalLimite').innerText = "Total: " + formatarMinutos(d.limiteDiario || 1260);
+      document.getElementById('valCapPecas').innerText = formatarPecas(d.capPecas || 2520);
+
+      // 5. Tabela do Painel Resumo
+      document.getElementById('detVeiculos').innerText = Math.round(extrairNumero(d.totalVeiculos));
+      document.getElementById('detTempoMedio').innerText = formatarMinutos(d.tempoMedio);
+      document.getElementById('detMinutos').innerText = formatarMinutos(d.totalMinutos);
+      document.getElementById('detHoras').innerText = formatarHoras(d.totalHoras);
+      document.getElementById('detMinDisp').innerText = formatarMinutos(d.minDisponiveis);
+      document.getElementById('detSaldoVagas').innerText = Math.round(extrairNumero(d.saldoVagas));
+
+      // 6. Alerta e Status Dinâmico por Faixa Operacional
+      const statusRoot = document.getElementById('statusBadgeRoot');
+      const statusIcon = document.getElementById('valStatusIcon');
+      const statusTitle = document.getElementById('valStatusTitle');
+      const statusSub = document.getElementById('valStatusSub');
+      const banner = document.getElementById('bannerAlerta');
+
+      if (usedPct >= 90) {
+        statusRoot.className = "status-badge crit";
+        statusIcon.innerText = "🚨";
+        statusTitle.innerText = "Capacidade Crítica";
+        statusSub.innerText = "Acima de 90% da janela ocupada.";
+
+        banner.className = "alert-banner crit";
+        banner.innerText = `🔴 ATENÇÃO: CAPACIDADE CRÍTICA (${strUsedPct})`;
+      } else if (usedPct >= 75) {
+        statusRoot.className = "status-badge warn";
+        statusIcon.innerText = "⚠️";
+        statusTitle.innerText = "Atenção: Limite Próximo";
+        statusSub.innerText = "Monitorar saldo de janelas disponíveis.";
+
+        banner.className = "alert-banner warn";
+        banner.innerText = `🟡 ATENÇÃO: CAPACIDADE PRÓXIMA (${strUsedPct})`;
+      } else {
+        statusRoot.className = "status-badge ok";
+        statusIcon.innerText = "✅";
+        statusTitle.innerText = "Dentro do Limite";
+        statusSub.innerText = "Operação operando conforme o planejado.";
+
+        banner.className = "alert-banner ok";
+        banner.innerText = `🟢 OPERAÇÃO NORMAL (${strUsedPct})`;
+      }
+
+      // 7. Atualização dos gráficos
       if (gaugeUtilChart) {
-        gaugeUtilChart.data.datasets[0].data = [usedPercent, Math.max(0, 100 - usedPercent)];
+        gaugeUtilChart.data.datasets[0].data = [usedPct, Math.max(0, 100 - usedPct)];
         gaugeUtilChart.update();
       }
       if (gaugeDispChart) {
-        gaugeDispChart.data.datasets[0].data = [availPercent, Math.max(0, 100 - availPercent)];
+        gaugeDispChart.data.datasets[0].data = [availPct, Math.max(0, 100 - availPct)];
         gaugeDispChart.update();
+      }
+      if (lineChart && lineChart.data.datasets[0].data.length > 0) {
+        lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1] = usedPct;
+        lineChart.update();
       }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       initCharts();
       sincronizarJanelaAlhandra();
-      // Atualiza automaticamente a cada 15 segundos (como nas suas outras telas)
       setInterval(sincronizarJanelaAlhandra, 15000);
     });
   </script>
