@@ -161,8 +161,9 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       font-weight: 800;
+      text-align: center;
     }
 
     .card-metrics {
@@ -270,7 +271,7 @@
       justify-content: center;
       font-size: 0.8rem;
       font-weight: 700;
-      transition: width 0.6s ease;
+      transition: width 0.6s ease, background-color 0.3s ease;
       white-space: nowrap;
       padding: 0 8px;
     }
@@ -283,7 +284,7 @@
       justify-content: center;
       font-size: 0.8rem;
       font-weight: 700;
-      transition: width 0.6s ease;
+      transition: width 0.6s ease, background-color 0.3s ease;
       white-space: nowrap;
       padding: 0 8px;
     }
@@ -295,7 +296,6 @@
       font-weight: 600;
     }
 
-    /* CARD DE PEÇAS APRIMORADO */
     .pecas-card-body {
       display: flex;
       flex-direction: column;
@@ -320,7 +320,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      shrink-0: 0;
+      flex-shrink: 0;
     }
 
     .pecas-info .val {
@@ -349,6 +349,10 @@
       background: linear-gradient(90deg, #f59e0b, #eab308);
       border-radius: 6px;
       transition: width 0.6s ease;
+    }
+
+    .pecas-progress-bar.over {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
     }
 
     .pecas-footer-stats {
@@ -390,6 +394,11 @@
       border-color: rgba(56, 189, 248, 0.4);
     }
 
+    .kpi-item.over-limit {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
     .kpi-item .label {
       font-size: 0.72rem;
       color: var(--text-muted);
@@ -410,12 +419,15 @@
       margin-top: 4px;
     }
 
-    /* BARRA DE ALERTA MODERNA */
+    .kpi-item.over-limit .val {
+      color: #fca5a5;
+    }
+
     .alert-banner {
       border-radius: 10px;
       padding: 12px 16px;
       font-weight: 800;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       text-align: center;
       margin-top: 10px;
       display: flex;
@@ -447,7 +459,6 @@
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
     }
 
-    /* TOOLTIP NATIVO DIDÁTICO */
     [data-tooltip] {
       position: relative;
     }
@@ -472,7 +483,7 @@
       transition: opacity 0.2s ease, transform 0.2s ease;
       z-index: 100;
       width: max-content;
-      max-width: 250px;
+      max-width: 260px;
       text-align: center;
       line-height: 1.25;
     }
@@ -533,11 +544,11 @@
       </div>
     </div>
 
-    <!-- Saldo Disponível -->
-    <div class="card" data-tooltip="Capacidade restante para novas operações hoje">
-      <div class="card-header-label">📤 Saldo Disponível</div>
+    <!-- Saldo Disponível / Excedente -->
+    <div class="card" id="cardSaldoDisp" data-tooltip="Capacidade restante ou excedida em relação aos 1.260 min">
+      <div class="card-header-label" id="lblSaldoCardHeader">📤 Saldo Disponível</div>
       <div class="gauge-card-content">
-        <div class="gauge-wrapper" data-tooltip="% Disponível = 100% - % Utilizado">
+        <div class="gauge-wrapper" id="wrapGaugeDisp" data-tooltip="% Disponível ou Excedente em relação ao limite diário">
           <canvas id="gaugeDisponivel"></canvas>
           <div class="gauge-val" id="valPercDisp" style="color: var(--orange);">--%</div>
         </div>
@@ -562,9 +573,9 @@
           <div style="font-size: 2rem; font-weight: 800; color: var(--green);" id="valCardPercUtil">--%</div>
           <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Utilizada</div>
         </div>
-        <div style="text-align: center; cursor: help;" data-tooltip="Cálculo: (Minutos Restantes ÷ 1.260 min) x 100">
+        <div style="text-align: center; cursor: help;" data-tooltip="Saldo disponível ou percentual excedido acima de 100%">
           <div style="font-size: 2rem; font-weight: 800; color: var(--yellow);" id="valCardPercDisp">--%</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Disponível</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="lblCardPerfDisp">% da Capacidade Disponível</div>
         </div>
       </div>
     </div>
@@ -587,7 +598,7 @@
     <div class="card" data-tooltip="Distribuição visual do limite operacional diário de 1.260 min">
       <div class="card-header-label">📊 Minutos Disponíveis x Utilizados</div>
       <div class="stacked-bar-container">
-        <div class="bar-legend">
+        <div class="bar-legend" id="barLegendContainer">
           <span>🔵 Utilizados</span>
           <span>🟠 Disponíveis</span>
         </div>
@@ -599,7 +610,7 @@
       </div>
     </div>
 
-    <!-- CARD 1: CAPACIDADE DE PEÇAS APRIMORADO -->
+    <!-- CARD CAPACIDADE DE PEÇAS -->
     <div class="card" data-tooltip="Capacidade Projetada: 2 peças por minuto (1.260 min x 2 = 2.520 peças)">
       <div class="card-header-label">📈 Capacidade de Peças</div>
       <div class="pecas-card-body">
@@ -614,7 +625,7 @@
           <div class="pecas-progress-bar" id="pecasBar" style="width: 85%;"></div>
         </div>
         <div class="pecas-footer-stats">
-          <span>Saldo restante: <strong id="valSaldoPecas" style="color: #facc15;">-- peças</strong></span>
+          <span id="lblSaldoPecasWrap">Saldo restante: <strong id="valSaldoPecas" style="color: #facc15;">-- peças</strong></span>
           <span id="valPecasPercentTxt">85,7% ocupado</span>
         </div>
       </div>
@@ -642,12 +653,12 @@
           <div class="label">Total de Horas Utilizadas <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detHoras">--</div>
         </div>
-        <div class="kpi-item" data-tooltip="Cálculo: 1.260 min (Limite) - Minutos Utilizados">
-          <div class="label">Minutos Disponíveis Restantes <span class="info-icon">ⓘ</span></div>
+        <div class="kpi-item" id="boxDetMinDisp" data-tooltip="Diferença entre o Limite Diário (1.260 min) e os Minutos Utilizados">
+          <div class="label"><span id="lblDetMinDisp">Minutos Disponíveis Restantes</span> <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detMinDisp">--</div>
         </div>
-        <div class="kpi-item" data-tooltip="Cálculo: 30 vagas (Meta) - Veículos Lançados">
-          <div class="label">Saldo de Vagas Restantes <span class="info-icon">ⓘ</span></div>
+        <div class="kpi-item" id="boxDetSaldoVagas" data-tooltip="Diferença entre a Meta Projetada (30 vagas) e os Veículos Lançados">
+          <div class="label"><span id="lblDetSaldoVagas">Saldo de Vagas Restantes</span> <span class="info-icon">ⓘ</span></div>
           <div class="val" id="detSaldoVagas">--</div>
         </div>
       </div>
@@ -655,11 +666,11 @@
       <!-- BARRA DE ALERTA MODERNA -->
       <div class="alert-banner warn" id="bannerAlerta">
         <span id="bannerIcon">🟡</span>
-        <span id="bannerTexto">ATENÇÃO: CAPACIDADE PRÓXIMA (87,3%)</span>
+        <span id="bannerTexto">Carregando status...</span>
       </div>
     </div>
 
-    <!-- CARD 2: GRÁFICO SEM LINHAS DE GRADE -->
+    <!-- GRÁFICO SEM LINHAS DE GRADE -->
     <div class="card" data-tooltip="Acompanhamento horário acumulado da utilização do CD">
       <div class="card-header-label">📈 Evolução Acumulada da Capacidade</div>
       <div style="position: relative; height: 230px;">
@@ -673,13 +684,11 @@
 
     let gaugeUtilChart, gaugeDispChart, lineChart;
 
-    // Parser Numérico Robusto (corrige notação brasileira e pontos decimais sem truncar)
     function parseSafeFloat(val) {
       if (val === null || val === undefined || val === '') return 0;
       if (typeof val === 'number') return val;
       let s = String(val).trim().replace(/min|h|peças|%/gi, '').trim();
 
-      // Se for formato brasileiro com ponto de milhar: ex 1.080 ou 2.520
       if (/^\d{1,3}\.\d{3}$/.test(s)) {
         s = s.replace(/\./g, '');
       } else if (s.includes(',')) {
@@ -710,7 +719,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [87.3, 12.7],
+            data: [85.7, 14.3],
             backgroundColor: ['#0284c7', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -729,7 +738,7 @@
         type: 'doughnut',
         data: {
           datasets: [{
-            data: [12.7, 87.3],
+            data: [14.3, 85.7],
             backgroundColor: ['#f97316', '#1e2945'],
             borderWidth: 0,
             circumference: 360,
@@ -743,7 +752,6 @@
         }
       });
 
-      // GRÁFICO SEM LINHAS DE GRADE
       const ctxLine = document.getElementById('lineChartEvolucao').getContext('2d');
       lineChart = new Chart(ctxLine, {
         type: 'line',
@@ -751,7 +759,7 @@
           labels: ['08h', '10h', '12h', '14h', '16h', '18h'],
           datasets: [{
             label: '% Utilizado',
-            data: [20, 48, 62, 75, 83, 87.3],
+            data: [20, 48, 62, 75, 83, 85.7],
             borderColor: '#38bdf8',
             backgroundColor: 'rgba(56, 189, 248, 0.12)',
             fill: true,
@@ -766,13 +774,13 @@
           scales: {
             y: {
               beginAtZero: true,
-              max: 100,
+              max: 140,
               ticks: { callback: v => v + '%', color: '#94a3b8' },
-              grid: { display: false, drawBorder: false } // Sem grade
+              grid: { display: false, drawBorder: false }
             },
             x: {
               ticks: { color: '#94a3b8' },
-              grid: { display: false, drawBorder: false } // Sem grade
+              grid: { display: false, drawBorder: false }
             }
           },
           plugins: { legend: { display: false } }
@@ -813,58 +821,147 @@
       const totalHoras = (totalMinutos / 60);
 
       const limiteDiario = Math.round(parseSafeFloat(d.limiteDiario)) || 1260;
-      const minDisponiveis = Math.max(0, limiteDiario - totalMinutos);
-      const horasDisponiveis = (minDisponiveis / 60);
+      const diffMin = limiteDiario - totalMinutos; // Positivo = disponível; Negativo = excedente
+      const isOverCapacity = diffMin < 0;
+      const minAbs = Math.abs(diffMin);
 
-      let usedPct = (totalMinutos / limiteDiario) * 100;
-      let availPct = Math.max(0, 100 - usedPct);
-
+      const usedPct = (totalMinutos / limiteDiario) * 100;
       const strUsedPct = usedPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
-      const strAvailPct = availPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
 
-      // 1. Cards Superiores
+      // 1. Card Capacidade Utilizada
       document.getElementById('valPercUtil').innerText = strUsedPct;
       document.getElementById('valTotalVeiculos').innerText = totalVeiculos;
       document.getElementById('valTotalMinutos').innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
 
-      document.getElementById('valPercDisp').innerText = strAvailPct;
+      // 2. Card Saldo Disponível / Excedente
+      const lblSaldoHeader = document.getElementById('lblSaldoCardHeader');
+      const valPercDisp = document.getElementById('valPercDisp');
+      const valCardPercUtil = document.getElementById('valCardPercUtil');
+      const valCardPercDisp = document.getElementById('valCardPercDisp');
+      const lblCardPerfDisp = document.getElementById('lblCardPerfDisp');
+
       document.getElementById('valTempoMedio').innerText = tempoMedio + ' min';
       document.getElementById('valTotalHoras').innerText = totalHoras.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' h';
 
-      document.getElementById('valCardPercUtil').innerText = strUsedPct;
-      document.getElementById('valCardPercDisp').innerText = strAvailPct;
+      if (isOverCapacity) {
+        const overPct = usedPct - 100;
+        const strOverPct = '+' + overPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
 
-      // 2. Barra Empilhada de Minutos
+        lblSaldoHeader.innerHTML = '🚨 Excedente Operacional';
+        valPercDisp.innerText = strOverPct;
+        valPercDisp.style.color = 'var(--red)';
+
+        valCardPercUtil.innerText = strUsedPct;
+        valCardPercUtil.style.color = 'var(--red)';
+
+        valCardPercDisp.innerText = strOverPct;
+        valCardPercDisp.style.color = 'var(--red)';
+        lblCardPerfDisp.innerText = '% Excedido do Limite';
+      } else {
+        const availPct = Math.max(0, 100 - usedPct);
+        const strAvailPct = availPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+
+        lblSaldoHeader.innerHTML = '📤 Saldo Disponível';
+        valPercDisp.innerText = strAvailPct;
+        valPercDisp.style.color = 'var(--orange)';
+
+        valCardPercUtil.innerText = strUsedPct;
+        valCardPercUtil.style.color = 'var(--green)';
+
+        valCardPercDisp.innerText = strAvailPct;
+        valCardPercDisp.style.color = 'var(--yellow)';
+        lblCardPerfDisp.innerText = '% da Capacidade Disponível';
+      }
+
+      // 3. Barra Empilhada de Minutos
       const barU = document.getElementById('barUsed');
       const barA = document.getElementById('barAvail');
-      barU.style.width = Math.min(Math.max(usedPct, 5), 95) + '%';
-      barU.innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
+      const barLegend = document.getElementById('barLegendContainer');
 
-      barA.style.width = Math.min(Math.max(availPct, 5), 95) + '%';
-      barA.innerText = minDisponiveis.toLocaleString('pt-BR') + ' min';
+      if (isOverCapacity) {
+        const baseRatio = (limiteDiario / totalMinutos) * 100;
+        const overRatio = 100 - baseRatio;
 
-      document.getElementById('valTotalLimite').innerText = "Total: " + limiteDiario.toLocaleString('pt-BR') + " min";
+        barLegend.innerHTML = '<span>🔵 Dentro do Limite (1.260 min)</span><span>🔴 Excedente</span>';
+        barU.style.width = Math.max(baseRatio, 50) + '%';
+        barU.style.backgroundColor = '#0284c7';
+        barU.innerText = limiteDiario.toLocaleString('pt-BR') + ' min (Limite)';
 
-      // 3. Capacidade de Peças Corrigida (Elimina os trilhões)
+        barA.style.width = Math.max(overRatio, 15) + '%';
+        barA.style.backgroundColor = '#ef4444';
+        barA.innerText = '+' + minAbs.toLocaleString('pt-BR') + ' min';
+
+        document.getElementById('valTotalLimite').innerText = `Total Utilizado: ${totalMinutos.toLocaleString('pt-BR')} min (Limite: ${limiteDiario.toLocaleString('pt-BR')} min)`;
+      } else {
+        const availPct = Math.max(0, 100 - usedPct);
+        barLegend.innerHTML = '<span>🔵 Utilizados</span><span>🟠 Disponíveis</span>';
+        barU.style.width = Math.min(Math.max(usedPct, 5), 95) + '%';
+        barU.style.backgroundColor = '#0284c7';
+        barU.innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
+
+        barA.style.width = Math.min(Math.max(availPct, 5), 95) + '%';
+        barA.style.backgroundColor = '#f97316';
+        barA.innerText = minAbs.toLocaleString('pt-BR') + ' min';
+
+        document.getElementById('valTotalLimite').innerText = "Total: " + limiteDiario.toLocaleString('pt-BR') + " min";
+      }
+
+      // 4. Capacidade de Peças
       const capPecas = Math.round(parseSafeFloat(d.capPecas)) || 2520;
-      const saldoPecas = Math.max(0, Math.round(minDisponiveis * 2)); // 2 peças por minuto restante
-      document.getElementById('valCapPecas').innerText = capPecas.toLocaleString('pt-BR') + ' peças';
-      document.getElementById('valSaldoPecas').innerText = saldoPecas.toLocaleString('pt-BR') + ' peças';
-      document.getElementById('valPecasPercentTxt').innerText = strUsedPct + ' ocupado';
-      document.getElementById('pecasBar').style.width = Math.min(usedPct, 100) + '%';
+      const pecasDiff = Math.round(diffMin * 2);
+      const pecasBar = document.getElementById('pecasBar');
+      const lblSaldoPecasWrap = document.getElementById('lblSaldoPecasWrap');
 
-      // 4. Tabela Resumo do Dia
+      document.getElementById('valCapPecas').innerText = capPecas.toLocaleString('pt-BR') + ' peças';
+      document.getElementById('valPecasPercentTxt').innerText = strUsedPct + ' ocupado';
+      pecasBar.style.width = Math.min(usedPct, 100) + '%';
+
+      if (pecasDiff < 0) {
+        pecasBar.classList.add('over');
+        lblSaldoPecasWrap.innerHTML = `Excedente: <strong style="color: #fca5a5;">+${Math.abs(pecasDiff).toLocaleString('pt-BR')} peças</strong>`;
+      } else {
+        pecasBar.classList.remove('over');
+        lblSaldoPecasWrap.innerHTML = `Saldo restante: <strong style="color: #facc15;">${pecasDiff.toLocaleString('pt-BR')} peças</strong>`;
+      }
+
+      // 5. Tabela Resumo do Dia
       const capMaxVeiculos = Math.round(parseSafeFloat(d.capMax)) || 30;
-      const saldoVagas = Math.max(0, capMaxVeiculos - totalVeiculos);
+      const diffVagas = capMaxVeiculos - totalVeiculos;
 
       document.getElementById('detVeiculos').innerText = totalVeiculos;
       document.getElementById('detTempoMedio').innerText = tempoMedio + ' min';
       document.getElementById('detMinutos').innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
       document.getElementById('detHoras').innerText = totalHoras.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' h';
-      document.getElementById('detMinDisp').innerText = minDisponiveis.toLocaleString('pt-BR') + ' min';
-      document.getElementById('detSaldoVagas').innerText = saldoVagas;
 
-      // 5. Alerta Modernizado e Status Dinâmico
+      const boxDetMinDisp = document.getElementById('boxDetMinDisp');
+      const lblDetMinDisp = document.getElementById('lblDetMinDisp');
+      const detMinDisp = document.getElementById('detMinDisp');
+
+      if (isOverCapacity) {
+        boxDetMinDisp.classList.add('over-limit');
+        lblDetMinDisp.innerText = 'Minutos Excedentes';
+        detMinDisp.innerText = '+' + minAbs.toLocaleString('pt-BR') + ' min';
+      } else {
+        boxDetMinDisp.classList.remove('over-limit');
+        lblDetMinDisp.innerText = 'Minutos Disponíveis Restantes';
+        detMinDisp.innerText = minAbs.toLocaleString('pt-BR') + ' min';
+      }
+
+      const boxDetSaldoVagas = document.getElementById('boxDetSaldoVagas');
+      const lblDetSaldoVagas = document.getElementById('lblDetSaldoVagas');
+      const detSaldoVagas = document.getElementById('detSaldoVagas');
+
+      if (diffVagas < 0) {
+        boxDetSaldoVagas.classList.add('over-limit');
+        lblDetSaldoVagas.innerText = 'Vagas Excedentes';
+        detSaldoVagas.innerText = '+' + Math.abs(diffVagas);
+      } else {
+        boxDetSaldoVagas.classList.remove('over-limit');
+        lblDetSaldoVagas.innerText = 'Saldo de Vagas Restantes';
+        detSaldoVagas.innerText = diffVagas;
+      }
+
+      // 6. Alerta Modernizado e Status Dinâmico
       const statusRoot = document.getElementById('statusBadgeRoot');
       const statusIcon = document.getElementById('valStatusIcon');
       const statusTitle = document.getElementById('valStatusTitle');
@@ -873,7 +970,17 @@
       const bannerIcon = document.getElementById('bannerIcon');
       const bannerTexto = document.getElementById('bannerTexto');
 
-      if (usedPct >= 90) {
+      if (isOverCapacity) {
+        const horasExcedentes = (minAbs / 60).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        statusRoot.className = "status-badge crit";
+        statusIcon.innerText = "🚨";
+        statusTitle.innerText = "Capacidade Excedida";
+        statusSub.innerText = `Passando +${minAbs.toLocaleString('pt-BR')} min (${horasExcedentes} h) do limite.`;
+
+        banner.className = "alert-banner crit";
+        bannerIcon.innerText = "🚨";
+        bannerTexto.innerText = `ATENÇÃO: CAPACIDADE CRÍTICA (${strUsedPct}) • +${minAbs.toLocaleString('pt-BR')} MIN EXCEDENTES`;
+      } else if (usedPct >= 90) {
         statusRoot.className = "status-badge crit";
         statusIcon.innerText = "🚨";
         statusTitle.innerText = "Capacidade Crítica";
@@ -902,17 +1009,31 @@
         bannerTexto.innerText = `OPERAÇÃO NORMAL (${strUsedPct})`;
       }
 
-      // 6. Atualização dos Gráficos
+      // 7. Atualização dos Gráficos
       if (gaugeUtilChart) {
-        gaugeUtilChart.data.datasets[0].data = [usedPct, Math.max(0, 100 - usedPct)];
+        const gaugeFill = Math.min(usedPct, 100);
+        gaugeUtilChart.data.datasets[0].data = [gaugeFill, Math.max(0, 100 - gaugeFill)];
+        gaugeUtilChart.data.datasets[0].backgroundColor = isOverCapacity ? ['#ef4444', '#1e2945'] : ['#0284c7', '#1e2945'];
         gaugeUtilChart.update();
       }
       if (gaugeDispChart) {
-        gaugeDispChart.data.datasets[0].data = [availPct, Math.max(0, 100 - availPct)];
+        if (isOverCapacity) {
+          const overFill = Math.min(usedPct - 100, 100);
+          gaugeDispChart.data.datasets[0].data = [overFill, Math.max(0, 100 - overFill)];
+          gaugeDispChart.data.datasets[0].backgroundColor = ['#ef4444', '#1e2945'];
+        } else {
+          const availPct = Math.max(0, 100 - usedPct);
+          gaugeDispChart.data.datasets[0].data = [availPct, Math.max(0, 100 - availPct)];
+          gaugeDispChart.data.datasets[0].backgroundColor = ['#f97316', '#1e2945'];
+        }
         gaugeDispChart.update();
       }
       if (lineChart && lineChart.data.datasets[0].data.length > 0) {
-        lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1] = Number(usedPct.toFixed(1));
+        const lastVal = Number(usedPct.toFixed(1));
+        if (lastVal > 130) {
+          lineChart.options.scales.y.max = Math.ceil(lastVal / 10) * 10 + 10;
+        }
+        lineChart.data.datasets[0].data[lineChart.data.datasets[0].data.length - 1] = lastVal;
         lineChart.update();
       }
     }
