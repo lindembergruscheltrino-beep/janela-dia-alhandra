@@ -188,6 +188,44 @@
       color: var(--text-muted);
     }
 
+    /* AJUSTE SIMÉTRICO DO CARD PERFORMANCE OPERACIONAL */
+    .perf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      height: 100%;
+      padding: 6px 0;
+    }
+
+    .perf-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px 10px;
+      cursor: help;
+    }
+
+    .perf-col:first-child {
+      border-right: 1px solid var(--card-border);
+    }
+
+    .perf-num {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    .perf-lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.3;
+      max-width: 110px;
+    }
+
     .status-badge {
       display: flex;
       align-items: center;
@@ -565,17 +603,17 @@
       </div>
     </div>
 
-    <!-- Performance -->
+    <!-- Performance (CARD AJUSTADO E SIMÉTRICO) -->
     <div class="card">
       <div class="card-header-label">⏱️ Performance Operacional</div>
-      <div style="display: flex; justify-content: space-around; align-items: center; height: 100%;">
-        <div style="text-align: center; cursor: help;" data-tooltip="Cálculo: (Minutos Utilizados ÷ 1.260 min) x 100">
-          <div style="font-size: 2rem; font-weight: 800; color: var(--green);" id="valCardPercUtil">--%</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">% da Capacidade Utilizada</div>
+      <div class="perf-grid">
+        <div class="perf-col" data-tooltip="Cálculo: (Minutos Utilizados ÷ 1.260 min) x 100">
+          <div class="perf-num" style="color: var(--green);" id="valCardPercUtil">--%</div>
+          <div class="perf-lbl">Capacidade<br>Utilizada</div>
         </div>
-        <div style="text-align: center; cursor: help;" data-tooltip="Saldo disponível ou percentual excedido acima de 100%">
-          <div style="font-size: 2rem; font-weight: 800; color: var(--yellow);" id="valCardPercDisp">--%</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;" id="lblCardPerfDisp">% da Capacidade Disponível</div>
+        <div class="perf-col" data-tooltip="Saldo disponível ou percentual excedido acima de 100%">
+          <div class="perf-num" style="color: var(--yellow);" id="valCardPercDisp">--%</div>
+          <div class="perf-lbl" id="lblCardPerfDisp">Capacidade<br>Disponível</div>
         </div>
       </div>
     </div>
@@ -821,7 +859,7 @@
       const totalHoras = (totalMinutos / 60);
 
       const limiteDiario = Math.round(parseSafeFloat(d.limiteDiario)) || 1260;
-      const diffMin = limiteDiario - totalMinutos; // Positivo = disponível; Negativo = excedente
+      const diffMin = limiteDiario - totalMinutos;
       const isOverCapacity = diffMin < 0;
       const minAbs = Math.abs(diffMin);
 
@@ -833,7 +871,7 @@
       document.getElementById('valTotalVeiculos').innerText = totalVeiculos;
       document.getElementById('valTotalMinutos').innerText = totalMinutos.toLocaleString('pt-BR') + ' min';
 
-      // 2. Card Saldo Disponível / Excedente
+      // 2. Card Saldo Disponível / Excedente e Performance Operacional
       const lblSaldoHeader = document.getElementById('lblSaldoCardHeader');
       const valPercDisp = document.getElementById('valPercDisp');
       const valCardPercUtil = document.getElementById('valCardPercUtil');
@@ -856,7 +894,7 @@
 
         valCardPercDisp.innerText = strOverPct;
         valCardPercDisp.style.color = 'var(--red)';
-        lblCardPerfDisp.innerText = '% Excedido do Limite';
+        lblCardPerfDisp.innerHTML = 'Excedido<br>do Limite';
       } else {
         const availPct = Math.max(0, 100 - usedPct);
         const strAvailPct = availPct.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
@@ -870,7 +908,7 @@
 
         valCardPercDisp.innerText = strAvailPct;
         valCardPercDisp.style.color = 'var(--yellow)';
-        lblCardPerfDisp.innerText = '% da Capacidade Disponível';
+        lblCardPerfDisp.innerHTML = 'Capacidade<br>Disponível';
       }
 
       // 3. Barra Empilhada de Minutos
